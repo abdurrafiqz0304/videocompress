@@ -1,46 +1,60 @@
 @echo off
-title TITANIUM // SETUP & PATH INTEGRATION
+title TITANIUM // AUTO-INSTALLER & UPDATER
 color 0B
 cls
 
 echo.
 echo  ================================================
-echo   TITANIUM COMPRESSOR // SYSTEM INSTALLATION
+echo   TITANIUM COMPRESSOR // SYSTEM SETUP
 echo  ================================================
 echo.
 
-:: 1. CREATE DIRECTORIES
+:: 1. SETUP FOLDER
 if not exist "videos_raw" mkdir "videos_raw"
 if not exist "videos_compressed" mkdir "videos_compressed"
-echo  [OK] Data Sectors Initialized.
+echo  [OK] Data Sectors Ready.
 
-:: 2. CHECK FFMPEG
+:: 2. CHECK & DOWNLOAD FFMPEG (Auto Logic)
 if exist "ffmpeg.exe" (
     echo  [OK] FFmpeg Binaries Detected.
 ) else (
-    color 0E
-    echo  [WARNING] 'ffmpeg.exe' MISSING!
-    echo   Make sure to put ffmpeg.exe here, or the tool won't work.
+    echo.
+    echo  [..] FFmpeg not found. INITIATING AUTO-DOWNLOAD...
+    echo       (This is ~120MB. Please wait...)
+    echo.
+    
+    :: Download guna curl (Built-in Windows 10/11)
+    curl -L -o ffmpeg.zip https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip
+    
+    echo.
+    echo  [..] Extracting FFmpeg...
+    
+    :: Extract guna tar
+    tar -xf ffmpeg.zip
+    
+    :: Pindahkan ffmpeg.exe dan ffprobe.exe ke folder utama
+    echo  [..] Installing Binaries...
+    for /r %%i in (ffmpeg.exe) do move "%%i" . >nul
+    for /r %%i in (ffprobe.exe) do move "%%i" . >nul
+    
+    :: Bersihkan fail sampah (Zip dan folder kosong)
+    del ffmpeg.zip
+    for /d %%d in (ffmpeg-*) do rmdir /s /q "%%d"
+    
+    echo  [OK] FFmpeg Successfully Installed!
 )
 
-:: 3. ADD TO WINDOWS PATH (Bahagian Penting!)
+:: 3. ADD TO WINDOWS PATH (Supaya boleh type 'vidcomp' kat mana-mana)
 echo.
-echo  [..] CONFIGURING SYSTEM PATH ENVIRONMENT...
-echo       (This allows you to type 'vidcomp' from anywhere)
-
-:: Guna PowerShell untuk tambah Path dengan selamat
+echo  [..] Configuring System Environment...
 set "PROJECT_PATH=%~dp0"
-:: Buang backslash terakhir kalau ada
 if "%PROJECT_PATH:~-1%"=="\" set "PROJECT_PATH=%PROJECT_PATH:~0,-1%"
-
 powershell -Command "[Environment]::SetEnvironmentVariable('Path', [Environment]::GetEnvironmentVariable('Path', 'User') + ';%PROJECT_PATH%', 'User')"
-
 echo  [OK] System Path Updated.
-echo       (You may need to restart CMD for changes to take effect)
 
-:: 4. SHORTCUT (Backup kalau user suka klik icon)
+:: 4. DESKTOP SHORTCUT
 echo.
-echo  [..] Creating Desktop Shortcut (Optional access)...
+echo  [..] Creating Desktop Shortcut...
 set SCRIPT="%TEMP%\MakeShortcut.vbs"
 echo Set oWS = WScript.CreateObject("WScript.Shell") > %SCRIPT%
 echo sLinkFile = oWS.ExpandEnvironmentStrings("%%USERPROFILE%%\Desktop\Video Compressor.lnk") >> %SCRIPT%
@@ -58,7 +72,7 @@ echo  ================================================
 echo   INSTALLATION COMPLETE.
 echo  ================================================
 echo.
-echo  RESTART your Command Prompt / Terminal now.
-echo  Then, just type: vidcomp
+echo  Restart your CMD/Terminal to apply changes.
+echo  Then just type: vidcomp
 echo.
 pause
