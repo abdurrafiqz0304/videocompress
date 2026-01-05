@@ -6,7 +6,7 @@ import platform
 import shutil
 import time
 
-# --- AESTHETICS ENGINE (Garunk Mode) ---
+# --- AESTHETICS ENGINE ---
 if os.name == 'nt': os.system('color') 
 
 class Style:
@@ -14,6 +14,7 @@ class Style:
     GREEN = '\033[92m'
     CYAN = '\033[96m'
     YELLOW = '\033[93m'
+    MAGENTA = '\033[95m'
     BOLD = '\033[1m'
     RESET = '\033[0m'
     
@@ -27,6 +28,7 @@ class Style:
         elif type == "EXEC": prefix = f"{Style.YELLOW}[EXEC]{Style.RESET}"
         elif type == "DONE": prefix = f"{Style.GREEN}[DONE]{Style.RESET}"
         elif type == "FAIL": prefix = f"{Style.RED}[FAIL]{Style.RESET}"
+        elif type == "UPDATE": prefix = f"{Style.MAGENTA}[UPDATE]{Style.RESET}"
         else: prefix = f"[{type}]"
         print(f" {prefix} {message}")
 
@@ -47,6 +49,20 @@ def open_directory(path):
         elif platform.system() == "Darwin": subprocess.Popen(["open", path])
         else: subprocess.Popen(["xdg-open", path])
     except: pass
+
+def trigger_update():
+    """Melancarkan update.bat dan matikan script python ini"""
+    print(f"\n{Style.BOLD}{Style.MAGENTA} >> INITIATING UPDATE SEQUENCE... {Style.RESET}")
+    print("    The program will close and restart.")
+    time.sleep(1)
+    
+    if platform.system() == "Windows":
+        # Jalankan update.bat dalam window baru supaya script ni boleh mati dengan aman
+        subprocess.Popen("start update.bat", shell=True)
+    else:
+        print("Auto-update is only available on Windows.")
+        
+    sys.exit() # Matikan diri sendiri supaya file boleh di-overwrite
 
 def compress_core(input_path, output_path, crf_val):
     filename = os.path.basename(input_path)
@@ -75,7 +91,7 @@ def main():
     os.system('cls' if os.name == 'nt' else 'clear')
     print(f"{Style.BOLD}{Style.RED}")
     print(" ╔═══════════════════════════════════════════════╗")
-    print(" ║    TITANIUM COMPRESSOR // CORE ACTIVE v4.0    ║")
+    print(" ║    TITANIUM COMPRESSOR // CORE ACTIVE v5.0    ║")
     print(" ╚═══════════════════════════════════════════════╝")
     print(f"{Style.RESET}")
 
@@ -95,16 +111,25 @@ def main():
 
     if not files:
         Style.status("FAIL", f"No payloads in sector '{INPUT_DIR}'.")
-        return
+        # Walaupun tiada file, kita bagi user chance untuk update
+    else:
+        Style.status("INFO", f"{len(files)} Targets Acquired.")
 
-    Style.status("INFO", f"{len(files)} Targets Acquired.")
-    Style.header("SELECT COMPRESSION PROTOCOL")
+    Style.header("SELECT PROTOCOL")
     print(f" {Style.BOLD}1.{Style.RESET} LOSSLESS (Minimal Compression)")
     print(f" {Style.BOLD}2.{Style.RESET} BALANCED (Recommended)")
     print(f" {Style.BOLD}3.{Style.RESET} AGGRESSIVE (Max Save)")
+    print(f" {Style.MAGENTA}{Style.BOLD}4. CHECK FOR UPDATES (GitHub){Style.RESET}")
     
     try:
         choice = input(f"\n {Style.RED}>> INPUT COMMAND: {Style.RESET}")
+        
+        if choice == '4':
+            trigger_update()
+            return
+            
+        if not files: return # Kalau takde file dan tak pilih update, exit.
+
         if choice == '1': crf = 18
         elif choice == '3': crf = 28
         else: crf = 23
