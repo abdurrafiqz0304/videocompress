@@ -1,0 +1,36 @@
+# --- BINARIES ---
+# Jangan upload tools berat ni, user kena download sendiri/guna install.bat
+ffmpeg.exe
+ffprobe.exe
+yt-dlp.exe
+
+# --- USER DATA ---
+# Jangan upload video input atau output!
+videos_raw/
+videos_compressed/
+input_videos/
+output_videos/
+
+# --- PYTHON SYSTEM FILES ---
+# Cache sampah yang tak perlu
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# --- OS SYSTEM FILES ---
+# Fail hantu dari Windows/Mac
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# --- VIRTUAL ENVIRONMENTS ---
+# Kalau kau guna venv
+env/
+venv/
+.env
+
+# --- IDE SETTINGS ---
+# Kalau guna VS Code
+.vscode/
+.idea/
