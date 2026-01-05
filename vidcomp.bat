@@ -1,7 +1,11 @@
 @echo off
-title TITANIUM // LAUNCHER
+title TITANIUM // ACTIVE SESSION
 color 0C
 cls
+
+:: --- AUTO-LOCATE LOGIC ---
+:: Simpan lokasi asal user (kalau perlu balik)
+pushd "%~dp0"
 
 echo.
 echo  ================================================
@@ -13,32 +17,30 @@ echo.
 python --version >nul 2>&1
 if %errorlevel% neq 0 (
     color 4F
-    echo.
-    echo  [CRITICAL ERROR] PYTHON NOT INSTALLED.
-    echo  Please install Python from python.org
-    echo.
+    echo  [CRITICAL] PYTHON NOT INSTALLED.
     pause
-    exit
+    popd
+    exit /b
 )
 
-:: 2. CHECK SCRIPT CORE
+:: 2. CHECK SCRIPT
 if not exist "videocompress.py" (
     color 4F
-    echo.
-    echo  [CRITICAL ERROR] CORE MISSING: videocompress.py
-    echo  Make sure the python file is named correctly.
-    echo.
+    echo  [CRITICAL] CORE MISSING: videocompress.py
+    echo  Looking in: %CD%
     pause
-    exit
+    popd
+    exit /b
 )
 
 :: 3. EXECUTE
-:: Run script python
 python videocompress.py
 
-:: 4. EXIT SEQUENCE
+:: 4. CLEANUP
 echo.
 echo  ================================================
 echo   SESSION TERMINATED.
 echo  ================================================
+:: Kembali ke folder asal user (optional)
+popd
 pause >nul
